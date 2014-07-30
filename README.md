@@ -47,16 +47,16 @@ Alternate web front end :
 -------------------------
 * https://github.com/hardcpp/P2PoolExtendedFrontEnd
 
-Notes for Litecoin:
+Notes for Neoscrypt:
 =========================
 Requirements:
 -------------------------
-In order to run P2Pool with the Litecoin network, you would need to build and install the
-ltc_scrypt module that includes the scrypt proof of work code that Litecoin uses for hashes.
+In order to run P2Pool with the any neoscrypt based  network, you would need to build and install the
+neoscrypt module that includes the scrypt proof of work code that Litecoin uses for hashes.
 
 Linux:
 
-    cd litecoin_scrypt
+    cd neoscrypt
     sudo python setup.py install
 
 Windows (mingw):
@@ -65,7 +65,7 @@ Windows (mingw):
 
 In bash type this:
 
-    cd litecoin_scrypt
+    cd neoscrypt
     C:\Python27\python.exe setup.py build --compile=mingw32 install
 
 Windows (microsoft visual c++)
@@ -75,7 +75,7 @@ In bash type this:
 
     SET VS90COMNTOOLS=%VS110COMNTOOLS%	           # For visual c++ 2012
     SET VS90COMNTOOLS=%VS100COMNTOOLS%             # For visual c++ 2010
-    cd litecoin_scrypt
+    cd neoscrypt
     C:\Python27\python.exe setup.py build --compile=mingw32 install
 	
 If you run into an error with unrecognized command line option '-mno-cygwin', see this:
@@ -83,25 +83,20 @@ http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produ
 
 Running P2Pool:
 -------------------------
-Run P2Pool with the "--net litecoin" option.
-Run your miner program, connecting to 127.0.0.1 on port 9327.
+Run P2Pool with the "--net feathercoin" option.
+Run your miner program, connecting to 127.0.0.1 on port 9336.
 Forward port 9338 to the host running P2Pool.
 
-Litecoin's use of ports 9332 and 9332 conflicts with P2Pool running on
-the Bitcoin network. To avoid problems, add these lines to litecoin.conf
-and restart litecoind:
 
-    rpcport=10332
-    port=10333
 
 Notes for Feathercoin:
 =========================
 Requirements:
 -------------------------
 In order to run P2Pool with the Feathercoin network, you would need to build and install the
-ltc_scrypt module that includes the scrypt proof of work code that Litecoin uses for hashes.
+neoscrypt module that includes the scrypt proof of work code that feaathercoin uses for hashes.
 
-See "Notes for Litecoin" above on how to install the ltc_script module.
+See "Notes for Neoscrypt" above on how to install the neoscript module.
 
 Running P2Pool:
 -------------------------
