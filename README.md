@@ -43,6 +43,13 @@ Official wiki :
 -------------------------
 https://en.bitcoin.it/wiki/P2Pool
 
+Frontend used :
+-------------------------
+p2pool neoscrpyt is using the alternate frontend available at:
+
+  https://github.com/johndoe75/p2pool-node-status.git
+
+
 Alternate web front end :
 -------------------------
 * https://github.com/hardcpp/P2PoolExtendedFrontEnd
