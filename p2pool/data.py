@@ -275,7 +275,8 @@ class Share(object):
             from p2pool import p2p
             raise p2p.PeerMisbehavingError('share target invalid')
         
-        if self.pow_hash > self.target:
+#        if self.pow_hash > self.target:
+        if self.pow_hash < self.target:
             from p2pool import p2p
             raise p2p.PeerMisbehavingError('share PoW invalid')
         

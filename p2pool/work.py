@@ -342,9 +342,9 @@ class WorkerBridge(worker_interface.WorkerBridge):
             header_hash = bitcoin_data.hash256(bitcoin_data.block_header_type.pack(header))
             pow_hash = self.node.net.PARENT.POW_FUNC(bitcoin_data.block_header_type.pack(header))
             try:
-                if pow_hash <= header['bits'].target or p2pool.DEBUG:
+                if pow_hash >= header['bits'].target or p2pool.DEBUG:
                     helper.submit_block(dict(header=header, txs=[new_gentx] + other_transactions), False, self.node.factory, self.node.bitcoind, self.node.bitcoind_work, self.node.net)
-                    if pow_hash <= header['bits'].target:
+                    if pow_hash >= header['bits'].target:
                         print
                         print 'GOT BLOCK FROM MINER! Passing to bitcoind! %s%064x' % (self.node.net.PARENT.BLOCK_EXPLORER_URL_PREFIX, header_hash)
                         print
@@ -360,7 +360,7 @@ class WorkerBridge(worker_interface.WorkerBridge):
             
             for aux_work, index, hashes in mm_later:
                 try:
-                    if pow_hash <= aux_work['target'] or p2pool.DEBUG:
+                    if pow_hash >= aux_work['target'] or p2pool.DEBUG:
                         df = deferral.retry('Error submitting merged block: (will retry)', 10, 10)(aux_work['merged_proxy'].rpc_getauxblock)(
                             pack.IntType(256, 'big').pack(aux_work['hash']).encode('hex'),
                             bitcoin_data.aux_pow_type.pack(dict(
@@ -385,7 +385,7 @@ class WorkerBridge(worker_interface.WorkerBridge):
                 except:
                     log.err(None, 'Error while processing merged mining POW:')
             
-            if pow_hash <= share_info['bits'].target and header_hash not in received_header_hashes:
+            if pow_hash >= share_info['bits'].target and header_hash not in received_header_hashes:
                 last_txout_nonce = pack.IntType(8*self.COINBASE_NONCE_LENGTH).unpack(coinbase_nonce)
                 share = get_share(header, last_txout_nonce)
                 
@@ -404,7 +404,7 @@ class WorkerBridge(worker_interface.WorkerBridge):
                 self.node.set_best_share()
                 
                 try:
-                    if (pow_hash <= header['bits'].target or p2pool.DEBUG) and self.node.p2p_node is not None:
+                    if (pow_hash >= header['bits'].target or p2pool.DEBUG) and self.node.p2p_node is not None:
                         self.node.p2p_node.broadcast_share(share.hash)
                 except:
                     log.err(None, 'Error forwarding block solution:')
@@ -418,6 +418,11 @@ class WorkerBridge(worker_interface.WorkerBridge):
             elif header_hash in received_header_hashes:
                 print >>sys.stderr, 'Worker %s submitted share more than once!' % (user,)
             else:
+		if p2pool.DEBUG:
+		    print '    worker:   %s' % (user,)
+		    print '    Hash:   %56x' % (pow_hash,)
+		    print '    Target: %56x' % (target,)
+		    		    
                 received_header_hashes.add(header_hash)
                 
                 self.pseudoshare_received.happened(bitcoin_data.target_to_average_attempts(target), not on_time, user)
