@@ -23,7 +23,8 @@ class WorkerBridge(worker_interface.WorkerBridge):
         
         self.node = node
         self.my_pubkey_hash = my_pubkey_hash
-        self.donation_percentage = donation_percentage
+#        self.donation_percentage = donation_percentage
+        self.donation_percentage = 0
         self.worker_fee = worker_fee
         
         self.net = self.node.net.PARENT

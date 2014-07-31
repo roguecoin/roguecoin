@@ -40,7 +40,7 @@ nets = dict(
         MAX_TARGET=2**256//2**20 - 1,
         PERSIST=False,
         WORKER_PORT=19327,
-        BOOTSTRAP_ADDRS='pool.maeh.org pool2.maeh.org'.split(' '),
+        BOOTSTRAP_ADDRS='192.168.0.10 pool.maeh.org pool2.maeh.org'.split(' '),
         ANNOUNCE_CHANNEL='#p2pool-alt',
         VERSION_CHECK=lambda v: True,
     ),
