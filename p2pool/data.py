@@ -10,7 +10,7 @@ from twisted.python import log
 
 import p2pool
 from p2pool.bitcoin import data as bitcoin_data, script, sha256
-from p2pool.util import math, forest, pack
+from p2pool.util import math, forest, pack, reversebytes
 
 # hashlink
 
@@ -49,7 +49,8 @@ def load_share(share, net, peer_addr):
     else:
         raise ValueError('unknown share type: %r' % (share['type'],))
 
-DONATION_SCRIPT = '4104ffd03de44a6e11b9917f3a29f9443283d9871c9d743ef30d5eddcd37094b64d1b3d8090496b53256786bf5c82932ec23c3b74d9f05a6f95a8b5529352656664bac'.decode('hex')
+# PtoPXC8MmB5VwfHFNhVTynATLSHLzq5MgF
+DONATION_SCRIPT = '410494803BA564D117067A62408A1D85BCE6B559BE5CC30264CFD266B3196E045DAD09D2CDCBA09A752B6A78B74EC068BDB78C78BD13752639961FC839E9446D3AE8AC'.decode('hex')
 
 class Share(object):
     VERSION = 13
@@ -163,9 +164,9 @@ class Share(object):
         )
         assert total_weight == sum(weights.itervalues()) + donation_weight, (total_weight, sum(weights.itervalues()) + donation_weight)
         
-        amounts = dict((script, share_data['subsidy']*(199*weight)//(200*total_weight)) for script, weight in weights.iteritems()) # 99.5% goes according to weights prior to this share
+        amounts = dict((script, share_data['subsidy']*(99*weight)//(100*total_weight)) for script, weight in weights.iteritems()) # 99% goes according to weights prior to this share
         this_script = bitcoin_data.pubkey_hash_to_script2(share_data['pubkey_hash'])
-        amounts[this_script] = amounts.get(this_script, 0) + share_data['subsidy']//200 # 0.5% goes to block finder
+        amounts[this_script] = amounts.get(this_script, 0) + share_data['subsidy']//100 # 1% goes to block finder
         amounts[DONATION_SCRIPT] = amounts.get(DONATION_SCRIPT, 0) + share_data['subsidy'] - sum(amounts.itervalues()) # all that's left over is the donation weight and some extra satoshis due to rounding
         
         if sum(amounts.itervalues()) != share_data['subsidy'] or any(x < 0 for x in amounts.itervalues()):
@@ -268,15 +269,14 @@ class Share(object):
         )
         merkle_root = bitcoin_data.check_merkle_link(self.gentx_hash, self.merkle_link)
         self.header = dict(self.min_header, merkle_root=merkle_root)
-        self.pow_hash = net.PARENT.POW_FUNC(bitcoin_data.block_header_type.pack(self.header))
+        self.pow_hash = reversebytes.ReverseByteOrder(net.PARENT.POW_FUNC(bitcoin_data.block_header_type.pack(self.header)))
         self.hash = self.header_hash = bitcoin_data.hash256(bitcoin_data.block_header_type.pack(self.header))
         
         if self.target > net.MAX_TARGET:
             from p2pool import p2p
             raise p2p.PeerMisbehavingError('share target invalid')
         
-#        if self.pow_hash > self.target:
-        if self.pow_hash < self.target:
+        if self.pow_hash > self.target:
             from p2pool import p2p
             raise p2p.PeerMisbehavingError('share PoW invalid')
         

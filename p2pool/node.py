@@ -7,7 +7,7 @@ from twisted.python import log
 
 from p2pool import data as p2pool_data, p2p
 from p2pool.bitcoin import data as bitcoin_data, helper, height_tracker
-from p2pool.util import deferral, variable
+from p2pool.util import deferral, variable, reversebytes
 
 
 class P2PNode(p2p.Node):
@@ -80,7 +80,7 @@ class P2PNode(p2p.Node):
         return shares
     
     def handle_bestblock(self, header, peer):
-        if self.node.net.PARENT.POW_FUNC(bitcoin_data.block_header_type.pack(header)) > header['bits'].target:
+        if reversebytes.ReverseByteOrder(self.node.net.PARENT.POW_FUNC(bitcoin_data.block_header_type.pack(header))) > header['bits'].target:
             raise p2p.PeerMisbehavingError('received block header fails PoW test')
         self.node.handle_header(header)
     
@@ -197,7 +197,7 @@ class Node(object):
         self.best_block_header = variable.Variable(None)
         def handle_header(new_header):
             # check that header matches current target
-            if not (self.net.PARENT.POW_FUNC(bitcoin_data.block_header_type.pack(new_header)) <= self.bitcoind_work.value['bits'].target):
+            if not (reversebytes.ReverseByteOrder(self.net.PARENT.POW_FUNC(bitcoin_data.block_header_type.pack(new_header))) <= self.bitcoind_work.value['bits'].target):
                 return
             bitcoind_best_block = self.bitcoind_work.value['previous_block']
             if (self.best_block_header.value is None
